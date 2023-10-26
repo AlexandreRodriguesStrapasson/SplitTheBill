@@ -1,4 +1,4 @@
-package com.example.trabalhopdm
+package br.edu.scl.ifsp.ads.contatospdm
 
 import org.junit.Test
 
