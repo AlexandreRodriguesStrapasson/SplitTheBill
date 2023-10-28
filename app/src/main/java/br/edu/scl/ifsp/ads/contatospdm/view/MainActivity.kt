@@ -113,18 +113,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun fillContacts() {
-        for(i in 1..50) {
-            contactList.add(
-                Contact(
-                    i,
-                    "Nome $i",
-                    "Telefone $i"
-                )
-            )
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         unregisterForContextMenu(amb.contatosLv)
