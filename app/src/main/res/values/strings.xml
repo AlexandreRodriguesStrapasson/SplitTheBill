@@ -10,5 +10,7 @@
     <string name="add_contact">Add contact</string>
     <string name="remove_contact">Remove contact</string>
     <string name="edit_contact">Edit contact</string>
-    <string name="money">Money</string>
+    <string name="AmountToPaid">amount to paid</string>
+    <string name="receive">receive</string>
+    <string name="paid">paid</string>
 </resources>

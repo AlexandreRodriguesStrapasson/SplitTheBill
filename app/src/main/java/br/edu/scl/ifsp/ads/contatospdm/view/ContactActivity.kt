@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import br.edu.scl.ifsp.ads.contatospdm.databinding.ActivityContactBinding
 import br.edu.scl.ifsp.ads.contatospdm.model.Constant.EXTRA_CONTACT
 import br.edu.scl.ifsp.ads.contatospdm.model.Constant.VIEW_CONTACT
@@ -27,11 +29,13 @@ class ContactActivity : AppCompatActivity() {
             with(acb) {
                 if (viewContact) {
                     nameEt.isEnabled = false
-                    moneyEt.isEnabled = false
+                    amountToPaidEt.isEnabled = false
+                    receiveEt.isEnabled = false
+                    paidEt.isEnabled = false
                     saveBt.visibility = View.GONE
                 }
                 nameEt.setText(_receivedContact.name)
-                moneyEt.setText(_receivedContact.money)
+                amountToPaidEt.setText(_receivedContact.amountToPaid)
             }
         }
 
@@ -40,7 +44,9 @@ class ContactActivity : AppCompatActivity() {
                 val contact = Contact(
                     id = receivedContact?.id,
                     name = nameEt.text.toString(),
-                    money = moneyEt.text.toString()
+                    amountToPaid = amountToPaidEt.text.toString(),
+                    receive = receiveEt.text.toString(),
+                    pays = paidEt.text.toString()
                 )
 
                 val resultIntent = Intent()

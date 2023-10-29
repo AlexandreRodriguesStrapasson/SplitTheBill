@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import androidx.core.content.getSystemService
 import br.edu.scl.ifsp.ads.contatospdm.R
 import br.edu.scl.ifsp.ads.contatospdm.databinding.TileContactBinding
 import br.edu.scl.ifsp.ads.contatospdm.model.Contact
@@ -33,12 +32,12 @@ class ContactAdapter(context: Context, private val contactList: MutableList<Cont
         }
         val holder = contactTileView.tag as TileContactHolder
         holder.nameTv.setText(contact.name)
-        holder.pagarReceberTv.setText(contact.money)
+        holder.pagarReceberTv.setText(contact.amountToPaid)
 
         tcb?.nameTv?.setText(contact.name)
-        tcb?.pagarReceberTv?.setText(contact.money)
+        tcb?.pagarReceberTv?.setText(contact.amountToPaid)
         tcb?.nameTv?.text = contact.name
-        tcb?.pagarReceberTv?.text = contact.money
+        tcb?.pagarReceberTv?.text = contact.amountToPaid
 
         return contactTileView
     }

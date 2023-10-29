@@ -14,5 +14,7 @@ data class Contact(
     @NonNull
     var name: String,
     @NonNull
-    var money: String
+    var amountToPaid: String,
+    var receive: String,
+    var pays: String,
 ): Parcelable

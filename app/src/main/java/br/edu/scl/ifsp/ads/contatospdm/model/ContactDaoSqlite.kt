@@ -15,12 +15,16 @@ class ContactDaoSqlite(context: Context): ContactDao {
         private const val CONTACT_TABLE = "contact"
         private const val ID_COLUMN = "id"
         private const val NAME_COLUMN = "name"
-        private const val MONEY_COLUMN = "money"
+        private const val AMOUNTOPAID_COLUMN = "amountPaid"
+        private const val RECEIVES_COLUMN = "receives"
+        private const val PAYS_COLUMN = "pays"
         private const val CREATE_CONTACT_TABLE_STATEMENT =
                 "CREATE TABLE IF NOT EXISTS $CONTACT_TABLE (" +
                         "$ID_COLUMN INTEGER PRIMARY KEY AUTOINCREMENT," +
                         "$NAME_COLUMN TEXT NOT NULL," +
-                        "$MONEY_COLUMN TEXT NOT NULL);"
+                        "$AMOUNTOPAID_COLUMN TEXT NOT NULL," +
+                        "$RECEIVES_COLUMN TEXT," +
+                        "$PAYS_COLUMN TEXT);"
     }
 
     private val contactSqliteDatabase: SQLiteDatabase
@@ -63,12 +67,16 @@ class ContactDaoSqlite(context: Context): ContactDao {
     private fun Cursor.rowToContact() =  Contact(
         getInt(getColumnIndexOrThrow(ID_COLUMN)),
         getString(getColumnIndexOrThrow(NAME_COLUMN)),
-        getString(getColumnIndexOrThrow(MONEY_COLUMN))
+        getString(getColumnIndexOrThrow(AMOUNTOPAID_COLUMN)),
+        getString(getColumnIndexOrThrow(RECEIVES_COLUMN)),
+        getString(getColumnIndexOrThrow(PAYS_COLUMN))
     )
 
     private fun Contact.toContentValues(): ContentValues = with(ContentValues()) {
         put(NAME_COLUMN, name)
-        put(MONEY_COLUMN, money)
+        put(AMOUNTOPAID_COLUMN, amountToPaid)
+        put(RECEIVES_COLUMN, receive)
+        put(PAYS_COLUMN, pays)
         this
     }
 }
