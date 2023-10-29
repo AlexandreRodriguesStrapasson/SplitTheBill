@@ -36,7 +36,7 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(amb.root)
-        supportActionBar?.subtitle = "Lista de Pessoas"
+        supportActionBar?.subtitle = "Lista dos amigos"
         personController.getPeople()
 
         //fillContactList()
