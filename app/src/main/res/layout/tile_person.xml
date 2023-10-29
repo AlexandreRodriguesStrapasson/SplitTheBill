@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:padding="10dp">
+
     <TextView
         android:id="@+id/nameTv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Pedro"
-        android:textSize="25sp"/>
+        android:text="@string/name"
+        android:textSize="25sp" />
 
     <TextView
-        android:id="@+id/pagarReceberTv"
+        android:id="@+id/valueTv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="123456789"/>
+        android:text="@string/value" />
 
 </LinearLayout>

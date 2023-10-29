@@ -1,89 +1,103 @@
 package br.edu.scl.ifsp.ads.contatospdm.view
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build
 import android.os.Bundle
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView.AdapterContextMenuInfo
+import android.widget.AdapterView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import br.edu.scl.ifsp.ads.contatospdm.R
-import br.edu.scl.ifsp.ads.contatospdm.adapter.ContactAdapter
-import br.edu.scl.ifsp.ads.contatospdm.controller.ContactRoomController
+import br.edu.scl.ifsp.ads.contatospdm.adapter.PersonAdapter
+import br.edu.scl.ifsp.ads.contatospdm.controller.PersonController
 import br.edu.scl.ifsp.ads.contatospdm.databinding.ActivityMainBinding
-import br.edu.scl.ifsp.ads.contatospdm.model.Constant.EXTRA_CONTACT
-import br.edu.scl.ifsp.ads.contatospdm.model.Constant.VIEW_CONTACT
-import br.edu.scl.ifsp.ads.contatospdm.model.Contact
+import br.edu.scl.ifsp.ads.contatospdm.modal.Person
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
     private val amb: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
-
-    // Data source
-    private val contactList: MutableList<Contact> = mutableListOf()
-
-    // Controller
-    private val contactController: ContactRoomController by lazy {
-        ContactRoomController(this)
+    //DataSource
+    private val personList : MutableList<Person> = mutableListOf()
+    //Adapter
+    private val personAdpter: PersonAdapter by lazy {
+        PersonAdapter(this, personList)
     }
+    private lateinit var parl: ActivityResultLauncher<Intent>
 
-    // Adapter
-    private val contactAdapter: ContactAdapter by lazy {
-        ContactAdapter(this,contactList)
+    private val personController: PersonController by lazy {
+        PersonController(this)
     }
-
-    private lateinit var carl: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(amb.root)
-        setSupportActionBar(amb.toolbarIn.toolbar)
-        amb.contatosLv.adapter = contactAdapter
-        carl = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        supportActionBar?.subtitle = "Lista de Pessoas"
+        personController.getPeople()
+
+        //fillContactList()
+        amb.personsLv.adapter = personAdpter
+
+        parl = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result->
             if(result.resultCode == RESULT_OK) {
-                val contact = result.data?.getParcelableExtra<Contact>(EXTRA_CONTACT)
-                contact?.let{_contact ->
-                    if (contactList.any { it.id == _contact.id }) {
-                        contactController.editContact(_contact)
-                    } else {
-                        contactController.insertContact(_contact)
+                val person = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    result.data?.getParcelableExtra("Person",Person::class.java)
+                }
+                else{
+                    result.data?.getParcelableExtra<Person>(EXTRA_PERSON)
+                }
+                person?.let{_person ->
+                    val position = personList.indexOfFirst{it.id == _person.id}
+                    if(position != -1){
+                        personList[position] = _person
+                        personController.editPerson(_person)
+                        Toast.makeText(this, "Pessoa atualizada!", Toast.LENGTH_SHORT).show()
                     }
+                    else{
+                        personController.insert(_person)
+                        personController.getPeople()
+                        Toast.makeText(this, "Pessoa adicionada!", Toast.LENGTH_SHORT).show()
+                    }
+                    personAdpter.notifyDataSetChanged()
                 }
             }
         }
+        registerForContextMenu(amb.personsLv)
 
-        amb.contatosLv.setOnItemClickListener { parent, view, position, id ->
-            val contact = contactList[position]
-            val viewContactIntent = Intent(this, ContactActivity::class.java)
-            viewContactIntent.putExtra(EXTRA_CONTACT, contact)
-            viewContactIntent.putExtra(VIEW_CONTACT, true)
-            startActivity(viewContactIntent)
-        }
-
-        registerForContextMenu(amb.contatosLv)
-        contactController.getContacts()
+        amb.personsLv.setOnItemClickListener(object: AdapterView.OnItemClickListener{
+            override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long){
+                val person = personList[position]
+                val personIntent = Intent(this@MainActivity, PersonActivity::class.java)
+                personIntent.putExtra(EXTRA_PERSON, person)
+                personIntent.putExtra(EXTRA_VIEW_PERSON, true)
+                parl.launch(personIntent)
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
-            R.id.addContactMi -> {
-                carl.launch(Intent(this, ContactActivity::class.java))
+        return when(item.itemId){
+            R.id.addPersonMi -> {
+                parl.launch(Intent(this, PersonActivity::class.java))
                 true
             }
-            else -> false
+            R.id.splitBillMi -> {
+                val splitIntent = Intent(this, SplitBillActivity::class.java)
+                splitIntent.putParcelableArrayListExtra(EXTRA_SPLIT, ArrayList<Person>(personList))
+                parl.launch(splitIntent)
+                true
+            }
+            else ->false
         }
     }
-
     override fun onCreateContextMenu(
         menu: ContextMenu?,
         v: View?,
@@ -93,34 +107,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        val position = (item.menuInfo as AdapterContextMenuInfo).position
-        val contact = contactList[position]
-        return when (item.itemId) {
-            R.id.removeContactMi -> {
-                contactController.removeContact(contact)
-                Toast.makeText(this, "Contact removed.", Toast.LENGTH_SHORT).show()
+        val position =(item.menuInfo as AdapterView.AdapterContextMenuInfo).position
+        val person = personList[position]
+        return when(item.itemId){
+            R.id.editPersonMi -> {
+                val person = personList[position]
+                val personIntent = Intent(this, PersonActivity::class.java)
+                personIntent.putExtra(EXTRA_PERSON, person)
+                parl.launch(personIntent)
                 true
             }
-            R.id.editContactMi -> {
-                val editContactIntent = Intent(this, ContactActivity::class.java)
-                editContactIntent.putExtra(EXTRA_CONTACT, contact)
-                carl.launch(editContactIntent)
+            R.id.removePersonMi -> {
+
+                personList.removeAt(position)
+                personController.deletePerson(person)
+                personAdpter.notifyDataSetChanged()
+                Toast.makeText(this, "Pessoa removida!", Toast.LENGTH_SHORT).show()
+
                 true
             }
-            else -> {
-                false
-            }
+            else -> false
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterForContextMenu(amb.contatosLv)
-    }
-
-    fun updateContactList(_contactList: MutableList<Contact>) {
-        contactList.clear()
-        contactList.addAll(_contactList)
-        contactAdapter.notifyDataSetChanged()
+    fun updatePersonList(_personList: MutableList<Person>){
+        personList.clear()
+        personList.addAll(_personList)
+        personAdpter.notifyDataSetChanged()
     }
 }
